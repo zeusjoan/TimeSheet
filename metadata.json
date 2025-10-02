@@ -1,0 +1,6 @@
+
+{
+  "name": "DB - Rozliczenie B2B",
+  "description": "A modern, responsive web application for managing and settling work performed for clients. It includes modules for clients, orders, a dashboard with visualizations, and monthly settlements.",
+  "requestFramePermissions": []
+}

@@ -1,0 +1,47 @@
+
+version: '3.8'
+
+services:
+  # Serwis Bazy Danych
+  db:
+    image: postgres:13
+    container_name: b2b_db
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: b2bapp
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # Serwis Backendu
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: b2b_backend
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "3001:3001"
+    env_file:
+      - ./backend/.env
+
+  # Serwis Frontendu
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: b2b_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      # Dostęp do aplikacji będzie pod adresem http://localhost:8080
+      - "8080:80"
+
+volumes:
+  db_data:

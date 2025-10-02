@@ -1,0 +1,130 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  nip       String   @unique
+  phone     String?
+  orders    Order[]
+  contacts  Contact[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId  Int
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum OrderStatus {
+  aktywne
+  nieaktywne
+  archiwalne
+}
+
+model Order {
+  id            Int          @id @default(autoincrement())
+  client        Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  clientId      Int
+  orderNumber   String
+  supplierNumber String?
+  contractNumber String?
+  description   String
+  contact       Contact?     @relation(fields: [contactId], references: [id])
+  contactId     Int?
+  documentDate  DateTime
+  deliveryDate  DateTime?
+  status        OrderStatus  @default(aktywne)
+  items         OrderItem[]
+  attachments   Attachment[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model OrderItem {
+  id       Int      @id @default(autoincrement())
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId  Int
+  type     String
+  hours    Float
+  rate     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Attachment {
+  id          Int      @id @default(autoincrement())
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId     Int
+  fileName    String
+  fileContent String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Settlement {
+  id        Int      @id @default(autoincrement())
+  month     Int
+  year      Int
+  date      DateTime
+  amount    Float
+  items     SettlementItem[]
+  documents SettlementDocument[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, month])
+}
+
+model SettlementItem {
+  id           Int        @id @default(autoincrement())
+  settlement   Settlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  settlementId Int
+  orderId      Int
+  itemType     String
+  hours        Float
+  rate         Float
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model SettlementDocument {
+  id           Int        @id @default(autoincrement())
+  settlement   Settlement @relation(fields: [settlementId], references: [id], onDelete: Cascade)
+  settlementId Int
+  orderId      Int
+  pozPdf       Bytes?
+  invoicePdf   Bytes?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([settlementId, orderId])
+}
+
+model MonthlyDocument {
+  id         Int      @id @default(autoincrement())
+  month      Int
+  year       Int
+  fileName   String
+  pozPdf     Bytes?
+  invoicePdf Bytes?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([year, month])
+}
