@@ -250,7 +250,7 @@ const Settlements: React.FC<SettlementsProps> = ({ settlements, orders, clients,
                      const selectedOrder = activeOrders.find(o => o.id === item.orderId);
                      const availableItemTypes = selectedOrder?.items.map(i => i.type) || [];
                      return (
-                      <div key={item.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-start p-2 border rounded-md">
+                      <div key={item.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-end p-2 border rounded-md">
                           <div className="md:col-span-4">
                               <Select label="Zamówienie" value={item.orderId || ''} onChange={e => handleItemChange(index, 'orderId', e.target.value)} required>
                                   <option value="">Wybierz zamówienie</option>
@@ -290,7 +290,7 @@ const Settlements: React.FC<SettlementsProps> = ({ settlements, orders, clients,
                            <div className="md:col-span-2">
                              <Input label="Stawka" type="number" step="0.01" value={item.rate} onChange={e => handleItemChange(index, 'rate', e.target.value)} required />
                           </div>
-                          <div className="md:col-span-1 flex items-end">
+                          <div className="md:col-span-1">
                             <Button variant="destructive" type="button" className="w-full" onClick={() => removeItem(index)} disabled={settlementData.items.length <= 1}>
                                 <TrashIcon />
                             </Button>
