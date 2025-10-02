@@ -31,6 +31,7 @@ const initialSettlementState: Omit<Settlement, 'id'> = {
   month: new Date().getMonth() + 1,
   year: new Date().getFullYear(),
   date: new Date().toISOString().split('T')[0],
+  amount: 0,
   items: [{ id: crypto.randomUUID(), orderId: 0, itemType: OrderItemType.CONSULTATIONS, hours: 0, rate: 0 }],
 };
 

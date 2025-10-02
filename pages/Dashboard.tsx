@@ -58,9 +58,12 @@ const Dashboard: React.FC<DashboardProps> = ({ orders, settlements, clients }) =
   }, [settlements]);
 
   const dashboardData = useMemo(() => {
-    const filteredSettlementItems = settlements
-      .filter(s => s.year === selectedYear && (selectedMonth === 0 || s.month === selectedMonth))
-      .flatMap(s => s.items);
+    const filteredSettlements = settlements
+      .filter(s => s.year === selectedYear && (selectedMonth === 0 || s.month === selectedMonth));
+    
+    const totalAmountInPeriod = filteredSettlements.reduce((sum, s) => sum + s.amount, 0);
+
+    const filteredSettlementItems = filteredSettlements.flatMap(s => s.items);
 
     const totalHoursWorkedInPeriod = filteredSettlementItems.reduce((sum, item) => sum + item.hours, 0);
     const settledOrdersInPeriodIds = new Set(filteredSettlementItems.map(item => item.orderId));
@@ -121,6 +124,7 @@ const Dashboard: React.FC<DashboardProps> = ({ orders, settlements, clients }) =
     }).filter((order): order is NonNullable<typeof order> => order !== null);
 
     return {
+      totalAmountInPeriod,
       totalHoursWorkedInPeriod,
       settledOrdersCount: settledOrdersInPeriodIds.size,
       pieChartData,
@@ -143,7 +147,11 @@ const Dashboard: React.FC<DashboardProps> = ({ orders, settlements, clients }) =
             </div>
        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card>
+            <CardHeader><CardTitle>Suma Rozliczeń</CardTitle><CardDescription>w wybranym okresie</CardDescription></CardHeader>
+            <CardContent><p className="text-4xl font-bold">{dashboardData.totalAmountInPeriod.toLocaleString('pl-PL', { style: 'currency', currency: 'PLN' })}</p></CardContent>
+        </Card>
         <Card>
             <CardHeader><CardTitle>Przepracowane Godziny</CardTitle><CardDescription>w wybranym okresie</CardDescription></CardHeader>
             <CardContent><p className="text-4xl font-bold">{dashboardData.totalHoursWorkedInPeriod.toFixed(2)}</p></CardContent>
@@ -152,7 +160,7 @@ const Dashboard: React.FC<DashboardProps> = ({ orders, settlements, clients }) =
             <CardHeader><CardTitle>Rozliczane Zamówienia</CardTitle><CardDescription>w wybranym okresie</CardDescription></CardHeader>
             <CardContent><p className="text-4xl font-bold">{dashboardData.settledOrdersCount}</p></CardContent>
         </Card>
-        <Card>
+        <Card className="lg:col-span-1">
             <CardHeader><CardTitle>Podział Pracy</CardTitle><CardDescription>w wybranym okresie</CardDescription></CardHeader>
             <CardContent className="pt-0">
                  {dashboardData.pieChartData.length > 0 ? (

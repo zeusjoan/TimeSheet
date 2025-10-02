@@ -75,6 +75,7 @@ export interface Settlement {
   month: number; // 1-12
   year: number;
   date: string;
+  amount: number;
   items: SettlementItem[];
   documents?: SettlementDocument[];
 }
